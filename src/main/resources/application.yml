@@ -1,3 +1,19 @@
 spring:
   application:
     name: holidayServer
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:tcp://localhost/~/holiday
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+    generate-ddl: true
+
+logging:
+  level:
+    org.hibernate.sql: debug
