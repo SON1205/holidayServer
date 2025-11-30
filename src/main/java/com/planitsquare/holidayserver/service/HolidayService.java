@@ -1,6 +1,10 @@
 package com.planitsquare.holidayserver.service;
 
-public interface HolidayService {
+import com.planitsquare.holidayserver.domain.Country;
+import com.planitsquare.holidayserver.domain.Holiday;
+import com.planitsquare.holidayserver.dto.HolidayApiRes;
+import java.util.List;
 
-    void syncAllCountriesAndHolidays();
+public interface HolidayService {
+    List<Holiday> saveHolidays(Country c, List<HolidayApiRes> holidays);
 }
