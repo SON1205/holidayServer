@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Getter
+@Builder
 public class Holiday extends BaseEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -40,7 +42,11 @@ public class Holiday extends BaseEntity {
     private Boolean fixed;
     private Boolean global;
     private Integer launchYear;
-    private String counties;
+
+    @ElementCollection
+    @CollectionTable(name = "holiday_county", joinColumns = @JoinColumn(name = "holiday_id"))
+    @Column(name = "counties", nullable = false)
+    private List<String> counties;
 
     @ElementCollection
     @CollectionTable(name = "holiday_type", joinColumns = @JoinColumn(name = "holiday_id"))

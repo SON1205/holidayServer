@@ -23,4 +23,13 @@ public class Country extends BaseEntity {
     @Column(unique = true)
     private String countryCode;
     private String name;
+
+    public Country(String countryCode, String name) {
+        this.countryCode = countryCode;
+        this.name = name;
+    }
+
+    public static Country of(String countryCode, String name) {
+        return new Country(countryCode, name);
+    }
 }
