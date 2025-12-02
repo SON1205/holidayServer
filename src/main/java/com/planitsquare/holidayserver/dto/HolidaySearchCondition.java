@@ -43,10 +43,14 @@ public record HolidaySearchCondition(
             return true;
         }
 
-        if (startDate != null && startDate.getYear() != year) {
+        if (startDate != null && startDate.getYear() > year) {
             return false;
         }
 
-        return endDate == null || endDate.getYear() == year;
+        if (endDate != null && endDate.getYear() < year) {
+            return false;
+        }
+
+        return true;
     }
 }
