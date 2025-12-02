@@ -10,8 +10,10 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Table(indexes = {
+        @Index(name = "idx_holiday_country_date", columnList = "country_id, date"),
+        @Index(name = "idx_holiday_date", columnList = "date")
+})
 @Getter
 @Builder
 public class Holiday extends BaseEntity {
