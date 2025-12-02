@@ -9,7 +9,6 @@ import com.planitsquare.holidayserver.repository.HolidayRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,10 +45,6 @@ public class HolidayServiceImpl implements HolidayService {
 
         // 데이터 찾기
         Page<Holiday> searched = holidayRepository.search(condition, pageable);
-        return new PageImpl<>(
-                searched.getContent().stream().map(HolidayResponse::from).toList(),
-                pageable,
-                searched.getTotalElements()
-        );
+        return searched.map(HolidayResponse::from);
     }
 }

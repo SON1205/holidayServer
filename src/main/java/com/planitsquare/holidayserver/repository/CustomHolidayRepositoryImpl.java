@@ -9,15 +9,12 @@ import com.planitsquare.holidayserver.dto.HolidaySearchCondition;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -27,54 +24,63 @@ public class CustomHolidayRepositoryImpl implements CustomHolidayRepository {
 
     @Override
     public Page<Holiday> search(HolidaySearchCondition condition, Pageable pageable) {
-        List<Holiday> content = getHolidayJPAQuery(condition)
-                .orderBy(holiday.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        Long count = queryFactory
-                .select(holiday.count())
-                .from(holiday)
-                .where(
-                        countryCodeEq(condition.countryCode()),
-                        yearEq(condition.year()),
-                        startDateGoe(condition.startDate()),
-                        endDateLoe(condition.endDate()),
-                        typeEq(condition.type())
-                )
-                .fetchOne();
-
-        return new PageImpl<>(content, pageable, count != null ? count : 0);
-    }
-
-    private JPAQuery<Holiday> getHolidayJPAQuery(HolidaySearchCondition condition) {
-        return queryFactory
+        List<Holiday> content = queryFactory
                 .selectFrom(holiday)
                 .join(holiday.country, country).fetchJoin()
                 .where(
                         countryCodeEq(condition.countryCode()),
-                        yearEq(condition.year()),
-                        startDateGoe(condition.startDate()),
-                        endDateLoe(condition.endDate()),
+                        dateOnCondition(condition),
+                        typeEq(condition.type())
+                )
+                .orderBy(
+                        holiday.date.desc(),
+                        holiday.id.desc()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(holiday.count())
+                .from(holiday)
+                .where(
+                        countryCodeEq(condition.countryCode()),
+                        dateOnCondition(condition),
                         typeEq(condition.type())
                 );
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
     }
 
-    private BooleanExpression countryCodeEq(@Size(min = 2, max = 3) String countryCode) {
+    private BooleanExpression countryCodeEq(String countryCode) {
         return hasLength(countryCode) ? holiday.country.countryCode.eq(countryCode) : null;
     }
 
-    private BooleanExpression yearEq(@Min(value = 1900) @Max(value = 2100) Integer year) {
+    private BooleanExpression dateOnCondition(HolidaySearchCondition condition) {
+        if (condition.startDate() != null || condition.endDate() != null) {
+            return dateBetween(condition.startDate(), condition.endDate());
+        }
+        return yearEq(condition.year());
+    }
+
+    private BooleanExpression yearEq(Integer year) {
         return year == null ? null : holiday.date.year().eq(year);
     }
 
-    private BooleanExpression startDateGoe(LocalDate startDate) {
-        return startDate == null ? null : holiday.date.goe(startDate);
-    }
+    private BooleanExpression dateBetween(LocalDate start, LocalDate end) {
+        if (start == null && end == null) {
+            return null;
+        }
 
-    private BooleanExpression endDateLoe(LocalDate endDate) {
-        return endDate == null ? null : holiday.date.loe(endDate);
+        if (end == null) {
+            return holiday.date.goe(start);
+        }
+
+        if (start == null) {
+            return holiday.date.loe(end);
+        }
+
+        return holiday.date.between(start, end);
     }
 
     private BooleanExpression typeEq(String type) {
