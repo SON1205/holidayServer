@@ -41,9 +41,6 @@ public class HolidayServiceImpl implements HolidayService {
     @Transactional(readOnly = true)
     @Override
     public Page<HolidayResponse> searchHolidays(HolidaySearchCondition condition, Pageable pageable) {
-        // 입력값 검증
-
-        // 데이터 찾기
         Page<Holiday> searched = holidayRepository.search(condition, pageable);
         return searched.map(HolidayResponse::from);
     }

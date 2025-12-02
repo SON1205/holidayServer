@@ -1,5 +1,6 @@
 package com.planitsquare.holidayserver.dto;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -22,4 +23,30 @@ public record HolidaySearchCondition(
 
         String type
 ) {
+    public HolidaySearchCondition {
+        if (countryCode != null) {
+            countryCode = countryCode.toUpperCase();
+        }
+    }
+
+    @AssertTrue(message = "시작일은 종료일보다 이전이어야 합니다.")
+    public boolean isDateRangeValid() {
+        if (startDate == null || endDate == null) {
+            return true; // 둘 중 하나라도 없으면 검증 패스 (Not Null 체크는 별도)
+        }
+        return !startDate.isAfter(endDate);
+    }
+
+    @AssertTrue(message = "입력한 연도와 날짜 범위의 연도가 일치하지 않습니다.")
+    public boolean isYearMatchingDateRange() {
+        if (year == null || (startDate == null && endDate == null)) {
+            return true;
+        }
+
+        if (startDate != null && startDate.getYear() != year) {
+            return false;
+        }
+
+        return endDate == null || endDate.getYear() == year;
+    }
 }
