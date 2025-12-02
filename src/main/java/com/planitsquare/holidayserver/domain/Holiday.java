@@ -51,11 +51,13 @@ public class Holiday extends BaseEntity {
 
     @ElementCollection
     @CollectionTable(name = "holiday_county", joinColumns = @JoinColumn(name = "holiday_id"))
+    @Builder.Default
     @Column(name = "counties", nullable = false)
-    private List<String> counties;
+    private List<String> counties = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "holiday_type", joinColumns = @JoinColumn(name = "holiday_id"))
+    @Builder.Default
     @Column(name = "type")
     private List<String> types = new ArrayList<>();
 }
