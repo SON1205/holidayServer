@@ -3,9 +3,14 @@ package com.planitsquare.holidayserver.service;
 import com.planitsquare.holidayserver.domain.Country;
 import com.planitsquare.holidayserver.domain.Holiday;
 import com.planitsquare.holidayserver.dto.HolidayApiRes;
+import com.planitsquare.holidayserver.dto.HolidayResponse;
+import com.planitsquare.holidayserver.dto.HolidaySearchCondition;
 import com.planitsquare.holidayserver.repository.HolidayRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +36,20 @@ public class HolidayServiceImpl implements HolidayService {
                                 .types(h.types())
                                 .build())
                         .toList()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<HolidayResponse> searchHolidays(HolidaySearchCondition condition, Pageable pageable) {
+        // 입력값 검증
+
+        // 데이터 찾기
+        Page<Holiday> searched = holidayRepository.search(condition, pageable);
+        return new PageImpl<>(
+                searched.getContent().stream().map(HolidayResponse::from).toList(),
+                pageable,
+                searched.getTotalElements()
         );
     }
 }
