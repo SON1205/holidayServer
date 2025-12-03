@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface CountryService {
     List<Country> saveCountries(List<CountryApiRes> countries);
+
+    Country getCountryByCode(String code);
 }

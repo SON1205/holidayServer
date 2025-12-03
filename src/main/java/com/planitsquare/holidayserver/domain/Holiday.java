@@ -4,6 +4,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 import com.planitsquare.holidayserver.common.domain.BaseEntity;
+import com.planitsquare.holidayserver.dto.HolidayApiRes;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -39,6 +40,7 @@ public class Holiday extends BaseEntity {
     @Column(nullable = false)
     private LocalDate date;
     private String localName;
+    @Column(nullable = false)
     private String name;
 
     @ManyToOne(fetch = LAZY)
@@ -60,4 +62,37 @@ public class Holiday extends BaseEntity {
     @Builder.Default
     @Column(name = "type")
     private List<String> types = new ArrayList<>();
+
+    public static Holiday fromApi(HolidayApiRes apiRes, Country country) {
+        return Holiday.builder()
+                .date(apiRes.date())
+                .localName(apiRes.localName())
+                .name(apiRes.name())
+                .country(country)
+                .fixed(apiRes.fixed())
+                .global(apiRes.global())
+                .launchYear(apiRes.launchYear())
+                .counties(apiRes.counties())
+                .types(apiRes.types())
+                .build();
+    }
+
+    public void update(HolidayApiRes res) {
+        this.date = res.date();
+        this.localName = res.localName();
+        this.name = res.name();
+        this.fixed = res.fixed();
+        this.global = res.global();
+        this.launchYear = res.launchYear();
+
+        this.counties.clear();
+        if (res.counties() != null) {
+            this.counties.addAll(res.counties());
+        }
+
+        this.types.clear();
+        if (res.types() != null) {
+            this.types.addAll(res.types());
+        }
+    }
 }

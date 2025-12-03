@@ -4,6 +4,8 @@ import com.planitsquare.holidayserver.common.client.ApiClient;
 import com.planitsquare.holidayserver.domain.Country;
 import com.planitsquare.holidayserver.dto.CountryApiRes;
 import com.planitsquare.holidayserver.dto.HolidayApiRes;
+import com.planitsquare.holidayserver.dto.HolidayRefreshReq;
+import com.planitsquare.holidayserver.dto.RefreshResult;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +14,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class HolidaySyncService {
-    static final int YEARS_TO_SUBTRACT = 5;
+    private static final int YEARS_TO_SUBTRACT = 5;
 
     private final ApiClient apiClient;
-    private final HolidayService holidayService;
+    private final HolidayBatchService holidayBatchService;
     private final CountryService countryService;
 
     public void syncAllCountriesAndHolidays() {
@@ -30,7 +32,13 @@ public class HolidaySyncService {
         int start = LocalDate.now().minusYears(YEARS_TO_SUBTRACT).getYear();
         for (int year = end; year > start; year--) {
             List<HolidayApiRes> holidays = apiClient.getHolidays(year, country.getCountryCode());
-            holidayService.saveHolidays(country, holidays);
+            holidayBatchService.saveHolidays(country, holidays);
         }
+    }
+
+    public RefreshResult refreshHoliday(HolidayRefreshReq request) {
+        Country country = countryService.getCountryByCode(request.countryCode());
+        List<HolidayApiRes> apiHolidays = apiClient.getHolidays(request.year(), country.getCountryCode());
+        return holidayBatchService.upsertHolidays(country, request.year(), apiHolidays);
     }
 }
