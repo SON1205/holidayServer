@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface HolidayRepository extends JpaRepository<Holiday, Long>, CustomHolidayRepository {
     List<Holiday> findAllByCountryAndDateBetween(Country country, LocalDate dateAfter, LocalDate dateBefore);
+
+    void removeHolidayByCountryAndDateBetween(Country country, LocalDate dateAfter, LocalDate dateBefore);
 }
