@@ -33,9 +33,6 @@ public class HolidayBatchService {
         LocalDate endDate = LocalDate.of(year, 12, 31);
         List<Holiday> existingList = holidayRepository.findAllByCountryAndDateBetween(country, startDate, endDate);
 
-        // 2. Map 변환 (성능 최적화)
-        Map<LocalDate, Holiday> dateMap = existingList.stream()
-                .collect(Collectors.toMap(Holiday::getDate, h -> h));
         Map<String, Holiday> nameMap = existingList.stream()
                 .collect(Collectors.toMap(Holiday::getName, h -> h, (oldV, newV) -> oldV));
 
@@ -43,13 +40,6 @@ public class HolidayBatchService {
         long inserted = 0;
 
         for (HolidayApiRes res : apiHolidays) {
-            // 날짜 일치 -> Update
-            if (dateMap.containsKey(res.date())) {
-                dateMap.get(res.date()).update(res);
-                updated++;
-                continue;
-            }
-            // 이름 일치 -> Update (날짜 변경 대응)
             if (nameMap.containsKey(res.name())) {
                 nameMap.get(res.name()).update(res);
                 updated++;
