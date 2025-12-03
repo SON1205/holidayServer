@@ -26,6 +26,8 @@ public class HolidayServiceImpl implements HolidayService {
     @Transactional(readOnly = true)
     @Override
     public Page<HolidayResponse> searchHolidays(HolidaySearchCondition condition, Pageable pageable) {
+        countryRepository.findByCountryCode(condition.countryCode())
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_COUNTRY_CODE));
         Page<Holiday> searched = holidayRepository.search(condition, pageable);
         return searched.map(HolidayResponse::from);
     }
