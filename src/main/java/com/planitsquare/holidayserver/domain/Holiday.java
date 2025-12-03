@@ -76,8 +76,8 @@ public class Holiday extends BaseEntity {
                 .fixed(apiRes.fixed())
                 .global(apiRes.global())
                 .launchYear(apiRes.launchYear())
-                .counties(apiRes.counties())
-                .types(apiRes.types())
+                .counties(apiRes.counties() == null ? new ArrayList<>() : apiRes.counties())
+                .types(apiRes.types() == null ? new ArrayList<>() : apiRes.types())
                 .build();
     }
 
