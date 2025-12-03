@@ -5,7 +5,7 @@ import com.planitsquare.holidayserver.dto.CountryApiRes;
 import java.util.List;
 
 public interface CountryService {
-    List<Country> saveCountries(List<CountryApiRes> countries);
+    List<Country> upsertCountries(List<CountryApiRes> countries);
 
     Country getCountryByCode(String code);
 }

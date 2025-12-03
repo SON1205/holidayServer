@@ -32,4 +32,8 @@ public class Country extends BaseEntity {
     public static Country of(String countryCode, String name) {
         return new Country(countryCode, name);
     }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
 }
